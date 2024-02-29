@@ -19,5 +19,5 @@ What things you need to have to be able to run:
 ## Run
 
 ```bash
-    $ streamlit run  app/main.py
+    $ streamlit run app/main.py
 ```
