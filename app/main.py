@@ -21,11 +21,16 @@ with left_column:
     elif source == "Upload":
         source_img = st.file_uploader("Upload an image here")
 
+
+input_directory = source_img
+pred = segmentation(input_directory)
+        
+
 with right_column:
     st.header("Result Image")
     
     if source_img is not None:
-        st.image(source_img, use_column_width=True)
+        st.image(pred, use_column_width=True) # showing the segmented image
         st.table({"Prediction": ["Crack", "No Crack"], "Confidence": ["0.8", "0.2"]}) # examples only
     else:
         st.info("Please select an image from the left column")

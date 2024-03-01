@@ -41,27 +41,3 @@ def segmentation(path):
     y_pred = model.predict(np.expand_dims(img, axis=0))
 
     return y_pred
-
-
-## Essa parte deve ir para o main.py
-
-input_directory = "dataset/Negative"
-output_directory = "dataset/Segmentation/Negative"
-total_images_to_segment = 1000
-
-if not os.path.exists(output_directory):
-    os.makedirs(output_directory)
-
-image_files = sorted(os.listdir(input_directory))
-
-for i, image_name in enumerate(image_files):
-    if i >= total_images_to_segment:
-        break
-
-    image_path = os.path.join(input_directory, image_name)
-
-    if os.path.exists(image_path):
-        pred = segmentation(image_path)
-        mask_name = f'{image_name.split(".")[0]}.jpg'
-        mask_path = os.path.join(output_directory, mask_name)
-        cv2.imwrite(mask_path, (pred[0] * 255.0).astype(np.uint8))
