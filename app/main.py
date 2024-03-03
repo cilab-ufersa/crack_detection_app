@@ -31,18 +31,17 @@ if not os.path.exists(temp_dir):
 
 input_directory = source_img
 
-img_path = os.path.join(temp_dir, input_directory.name)
-# saving the images
-with open(img_path, "wb") as f:
-    f.write(input_directory.getvalue())
-
-pred = segmentation(img_path)
-
 
 with right_column:
     st.header("Result Image")
 
     if source_img is not None:
+        img_path = os.path.join(temp_dir, input_directory.name)
+        # saving the images
+        with open(img_path, "wb") as f:
+            f.write(input_directory.getvalue())
+
+        pred = segmentation(img_path)
         st.image(
             (pred[0] * 255).astype(np.uint8), use_column_width=True
         )  # showing the segmented image
