@@ -20,7 +20,7 @@ model = load_model(
 )
 
 model.load_weights(
-    'models/unet.h5'
+    'models\weights\crack_detection_1_epoch_9_F1_score_dil_0.812.h5'
 )
 
 
