@@ -2,12 +2,11 @@ import streamlit as st
 import os
 from utils import *
 import numpy as np
-
+from PIL import Image
 
 st.set_page_config(
     page_title="Surface Crack Detection",
     page_icon="🧱",
-    layout="wide",
 )
 
 st.header("Surface Crack Detection AI App")
@@ -36,17 +35,31 @@ with right_column:
     st.header("Result Image")
 
     if source_img is not None:
+        
         img_path = os.path.join(temp_dir, input_directory.name)
-        # saving the images
+        
+        
+        # saving the input images
         with open(img_path, "wb") as f:
             f.write(input_directory.getvalue())
-
+            
         pred = segmentation(img_path)
+        segmentaded_array = (pred[0] * 255).astype(np.uint8)
+        segmentaded_image = Image.fromarray(np.squeeze(segmentaded_array, axis=2))
+        
+        seg_path = os.path.join(temp_dir, f"{input_directory.name}_segmented.jpg")
+        
+        #saving the segmented images
+        with open(seg_path, "wb") as f:
+            f.write(input_directory.getvalue())
+        
         st.image(
-            (pred[0] * 255).astype(np.uint8), use_column_width=True
+            segmentaded_image, use_column_width=True
         )  # showing the segmented image
-        st.table(
-            {"Prediction": ["Crack", "No Crack"], "Confidence": ["0.8", "0.2"]}
-        )  # examples only
+        
+        if classification(img_path) == 1:
+            st.info("The image contains a crack")
+        else:
+            st.info("The image does not contain a crack")
     else:
         st.info("Please select an image from the left column")
