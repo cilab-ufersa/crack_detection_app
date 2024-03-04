@@ -46,18 +46,15 @@ with right_column:
         pred = segmentation(img_path)
         segmentaded_array = (pred[0] * 255).astype(np.uint8)
         segmentaded_image = Image.fromarray(np.squeeze(segmentaded_array, axis=2))
+        seg_path = os.path.join(temp_dir, f"segmented_{input_directory.name}")
         
-        seg_path = os.path.join(temp_dir, f"{input_directory.name}_segmented.jpg")
-        
-        #saving the segmented images
-        with open(seg_path, "wb") as f:
-            f.write(input_directory.getvalue())
+        segmentaded_image.save(seg_path)
         
         st.image(
             segmentaded_image, use_column_width=True
         )  # showing the segmented image
         
-        if classification(img_path) == 1:
+        if classification(seg_path) == 1:
             st.info("The image contains a crack")
         else:
             st.info("The image does not contain a crack")
