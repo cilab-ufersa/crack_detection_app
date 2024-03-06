@@ -57,6 +57,7 @@ with right_column:
         
         st.header("Classification Result")
         
+        # Displaying the classification result
         data = {
             "Class": ["Not Containing Crack", "Containing Crack"],
             "Probability": [f"{round(negative_result, 2)}%", f"{round(positive_result, 2)}%"],
