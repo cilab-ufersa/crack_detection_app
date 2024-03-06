@@ -57,7 +57,8 @@ def classification(path):
         path (str): receives the path of the images for classification
 
     Returns:
-        int: 1 if the image contains a crack, 0 otherwise
+        negative (float): probability of the image not containing a crack
+        positive (float): probability of the image containing a crack
     """
 
     img = cv2.imread(path)
