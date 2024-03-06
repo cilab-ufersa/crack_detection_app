@@ -51,10 +51,11 @@ with right_column:
         st.image(
             segmentaded_image, use_column_width=True
         )  # showing the segmented image
+        
+        negative_result, positive_result = classification(img_path)
+        
+        st.info(f"Negative: {round(negative_result, 2)}%")
+        st.info(f"Positive: {round(positive_result, 2)}%")
 
-        if classification(img_path) == 1:
-            st.info("The image contains a crack")
-        else:
-            st.info("The image does not contain a crack")
     else:
         st.info("Please select an image from the left column")

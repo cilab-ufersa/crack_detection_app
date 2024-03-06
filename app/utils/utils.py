@@ -66,5 +66,8 @@ def classification(path):
     img = img / 255.0
 
     y_pred = model.predict(img)
-    
-    return np.argmax(y_pred[0])
+
+    negative = y_pred[0][0] * 100
+    positive = y_pred[0][1] * 100
+
+    return (negative, positive)
