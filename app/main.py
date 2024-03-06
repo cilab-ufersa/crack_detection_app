@@ -3,6 +3,7 @@ import os
 from utils import *
 import numpy as np
 from PIL import Image
+import pandas as pd
 
 st.set_page_config(
     page_title="Surface Crack Detection",
@@ -54,8 +55,16 @@ with right_column:
         
         negative_result, positive_result = classification(img_path)
         
-        st.info(f"Negative: {round(negative_result, 2)}%")
-        st.info(f"Positive: {round(positive_result, 2)}%")
+        st.header("Classification Result")
+        
+        data = {
+            "Class": ["Not Containing Crack", "Containing Crack"],
+            "Probability": [f"{round(negative_result, 2)}%", f"{round(positive_result, 2)}%"],
+        }
 
+        df = pd.DataFrame(data)
+        
+        st.write(df.reset_index(drop=True).to_html(index=False), unsafe_allow_html=True)
+    
     else:
         st.info("Please select an image from the left column")
