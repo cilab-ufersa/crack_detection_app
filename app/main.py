@@ -43,28 +43,26 @@ with right_column:
             f.write(input_directory.getvalue())
 
         pred = segmentation(img_path)
-        segmentaded_array = (pred[0] * 255).astype(np.uint8)
-        segmentaded_image = Image.fromarray(np.squeeze(segmentaded_array, axis=2))
         seg_path = os.path.join(temp_dir, f"segmented_{input_directory.name}")
 
-        segmentaded_image.save(seg_path)
+        pred.save(seg_path)
 
         st.image(
-            segmentaded_image, use_column_width=True
+            pred, use_column_width=True
         )  # showing the segmented image
         
         negative_result, positive_result = classification(img_path)
         
         st.header("Classification Result")
         
-        # Displaying the classification result
+        # Displaying the classification result 
         data = {
             "Class": ["Not Containing Crack", "Containing Crack"],
             "Probability": [f"{round(negative_result, 2)}%", f"{round(positive_result, 2)}%"],
         }
 
         df = pd.DataFrame(data)
-        
+              
         st.write(df.reset_index(drop=True).to_html(index=False), unsafe_allow_html=True)
     
     else:

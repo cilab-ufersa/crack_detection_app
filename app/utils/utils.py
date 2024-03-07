@@ -1,6 +1,8 @@
 import numpy as np
+import pandas as pd
 import cv2
 import os
+from PIL import Image
 from keras.models import load_model, Model
 from utils.loss_metrics import (
     Weighted_Cross_Entropy,
@@ -25,15 +27,16 @@ model = load_model(
 )
 
 
+
 def segmentation(path):
     """
-    Generates output predictions for the input samples
+    Generates an overlay image of the input image with the segmented crack
 
     Args:
         path (str): receives the path of the images for segmentation
 
     Returns:
-        y_pred (numpy array): array containing the predictions
+        overlay (PIL.Image): overlay image of the input image with the segmented crack
     """
 
     img = cv2.imread(path)
@@ -45,8 +48,28 @@ def segmentation(path):
     )
 
     y_pred = segmented_output.predict(np.expand_dims(img, axis=0))
+    
+    # shows the segmented image
+    # cv2.imshow('segmented_image', y_pred[0])
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
+    
+    binary_mask = np.where(y_pred > 0.5, 1, 0)  
+    binary_mask = np.squeeze(binary_mask)
+    
+    color_mask = np.zeros((224, 224, 3), dtype=np.uint8)
+    color_mask[binary_mask == 1] = (0, 0, 255)  
+   
+    img = img.astype('float32')
+    color_mask = color_mask.astype('float32')
+    overlay = cv2.addWeighted(img, 0.7, color_mask, 0.3, 0)
 
-    return y_pred
+    overlay = cv2.cvtColor(overlay, cv2.COLOR_BGR2RGB)
+    overlay = cv2.resize(overlay, (224, 224))
+    
+    overlay = Image.fromarray((overlay * 255).astype(np.uint8))
+    
+    return overlay
 
 
 def classification(path):
