@@ -17,7 +17,7 @@ f1_score = F1_score
 f1_score_dil = F1_score_dil
 
 model = load_model(
-    "models/unet_classification.h5",
+    "models/unet_mobilenet.h5",
     custom_objects={
         "loss": loss,
         "Precision_dil": precision_dil,
