@@ -3,6 +3,9 @@ import pandas as pd
 import cv2
 import os
 from PIL import Image
+import matplotlib.pyplot as plt
+from fpdf import FPDF 
+import base64
 from keras.models import load_model, Model
 from utils.loss_metrics import (
     Weighted_Cross_Entropy,
@@ -26,8 +29,78 @@ model = load_model(
     },
 )
 
+def create_download_link(pdf, filename):
+    """Generates a download link for the PDF file
+
+    Args:
+        pdf (str): PDF file
+        filename (str): filename of the PDF file
+
+    Returns:
+        html (str): download link for the PDF file
+    """
+    
+    b64 = base64.b64encode(pdf)  
+    return f'<a href="data:application/octet-stream;base64,{b64.decode()}" download="{filename}.pdf">Download Result as PDF</a>'
+
+def save_pdf(image, overlay, binary, negative, positive):
+    """ Saves the input image, overlay image, binary image and the classification probabilities in a PDF file
+
+    Args:
+        image (Path): input image
+        overlay (Path): overlay image of the input image with the segmented crack
+        binary (Path): binary image of the segmented crack
+        negative (float): probability of the image not containing a crack
+        positive (float): probability of the image containing a crack
+        
+    Returns:
+        pdf (str): PDF file with the input image, overlay image, binary image and the classification probabilities
+    """
+    pdf = FPDF()
+    
+    pdf.add_page()
+    
+    pdf.set_title("Surface Crack Detection Report")
+    pdf.set_font("Times", size=14)
+    pdf.cell(200, 10, txt="Surface Crack Detection Report", ln=True, align="C")
+    
+    pdf.set_font("Times", size=12)
+    pdf.cell(200, 10, txt="1. Result Images", ln=True, align="L")
+    
+    pdf.image(overlay, x=10, y=30, w=90)
+    
+    pdf.set_font("Times", size=10)
+    pdf.ln(90)
+    pdf.cell(100, 10, txt="Overlay Image", ln=False, align="C")
+   
+    pdf.image(binary, x=110, y=30, w=90)
+    pdf.cell(90, 10, txt="Binary Image", ln=True, align="C")
+    
+    pdf.set_font("Times", size=12)
+    pdf.cell(200, 10, txt="2. Classification Result", ln=True, align="L")
+    
+    if positive > negative:
+        pdf.set_fill_color(230, 83, 83)
+        crack = "Containing Crack."
+    else:
+        pdf.set_fill_color(83, 230, 83)
+        crack = "Not Containing Crack."
+    
+
+    pdf.cell(200, 10, txt=f"Probability of Containing Crack: {round(positive, 2)}%", ln=True, align="L", fill=False)
+    pdf.cell(200, 10, txt=f"Probability of Not Containing Crack: {round(negative, 2)}%", ln=True, align="L", fill=False)
+    pdf.cell(52, 10, txt=f"Result: {crack}", ln=True, align="L", fill=True)
+    pdf.ln(63)
+    
+    pdf.image(image, x=110, y=143, w=90)
+    pdf.set_font("Times", size=10)
+    pdf.cell(100)
+    pdf.cell(90, 10, txt="Input Image", ln=True, align="C")
 
 
+    return pdf.output(dest="S").encode("latin-1")
+    
+    
 def segmentation(path):
     """
     Generates an overlay image of the input image with the segmented crack
@@ -37,6 +110,7 @@ def segmentation(path):
 
     Returns:
         overlay (PIL.Image): overlay image of the input image with the segmented crack
+        binary (PIL.Image): binary image of the segmented crack
     """
 
     img = cv2.imread(path)
@@ -48,11 +122,6 @@ def segmentation(path):
     )
 
     y_pred = segmented_output.predict(np.expand_dims(img, axis=0))
-    
-    # shows the segmented image
-    # cv2.imshow('segmented_image', y_pred[0])
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
     
     binary_mask = np.where(y_pred > 0.5, 1, 0)  
     binary_mask = np.squeeze(binary_mask)
@@ -69,7 +138,10 @@ def segmentation(path):
     
     overlay = Image.fromarray((overlay * 255).astype(np.uint8))
     
-    return overlay
+    binary_array = (y_pred[0] * 255).astype(np.uint8)
+    binary = Image.fromarray(np.squeeze(binary_array, axis=2))
+    
+    return overlay, binary
 
 
 def classification(path):

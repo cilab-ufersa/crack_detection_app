@@ -76,3 +76,5 @@ zipp==3.17.0
 opencv-python-headless
 streamlit
 streamlit_webrtc
+fpdf
+base64
