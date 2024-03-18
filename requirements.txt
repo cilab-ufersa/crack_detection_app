@@ -63,4 +63,3 @@ opencv-python-headless
 streamlit
 streamlit_webrtc
 fpdf
-base64
