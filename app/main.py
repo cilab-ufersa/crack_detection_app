@@ -40,8 +40,9 @@ with first_col:
     
 
 with second_col:
-    st.image("app/temp/a_0_10.png", caption="Surface Crack", use_column_width=True)
-
+    # st.image("app/temp/a_0_10.png", caption="Surface Crack", use_column_width=True)
+    st.image("app/images/crack.gif", caption="Surface Crack", use_column_width=True)
+    
 left_column, right_column = st.columns(2)
 
 temp_dir = "app/temp"  # input images are saved in this dir
