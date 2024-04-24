@@ -3,9 +3,7 @@ import pandas as pd
 import cv2
 import os
 from PIL import Image
-import matplotlib.pyplot as plt
 from fpdf import FPDF 
-import base64
 from keras.models import load_model, Model
 from utils.loss_metrics import (
     Weighted_Cross_Entropy,
@@ -28,20 +26,6 @@ model = load_model(
         "F1_score_dil": f1_score_dil,
     },
 )
-
-def create_download_link(pdf, filename):
-    """Generates a download link for the PDF file
-
-    Args:
-        pdf (str): PDF file
-        filename (str): filename of the PDF file
-
-    Returns:
-        html (str): download link for the PDF file
-    """
-    
-    b64 = base64.b64encode(pdf)  
-    return f'<a href="data:application/octet-stream;base64,{b64.decode()}" download="{filename}.pdf">Download Result as PDF</a>'
 
 def save_pdf(image, overlay, binary, negative, positive):
     """ Saves the input image, overlay image, binary image and the classification probabilities in a PDF file
@@ -167,3 +151,28 @@ def classification(path):
     positive = y_pred[0][1] * 100
 
     return (negative, positive)
+
+def download_images(image, overlay, binary):
+    """Saves the input image, overlay image, binary image and the classification probabilities in a zip file
+    
+    Args:
+        image (Path): input image
+        overlay (Path): overlay image of the input image with the segmented crack
+        binary (Path): binary image of the segmented crack
+    
+    Returns:
+        zip_path (str): path of the zip file
+    """
+    
+    import zipfile
+    zip_path = os.path.join("app/temp", "images.zip")
+    images = [image, overlay, binary]
+    
+    with zipfile.ZipFile(zip_path, "w") as zipf:
+        for img in images:
+            # Get the base name of the image file
+            img_name = os.path.basename(img)
+            # Write the image file to the zip file with the base name
+            zipf.write(img, arcname=img_name)
+
+    return zip_path

@@ -1,0 +1,6 @@
+[theme]
+primaryColor = "#4CAF50" # Verde
+backgroundColor = "#F5F5DC" # Cinza Claro 
+secondaryBackgroundColor = "#4caf5033" # Verde com 20% de opacidade em hexadecimal
+textColor = "#616161" # Cinza Escuro
+font = 'monospace'
