@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 import cv2
 import os
 from PIL import Image
@@ -107,7 +108,7 @@ def segmentation(path):
 
     y_pred = segmented_output.predict(np.expand_dims(img, axis=0))
     
-    binary_mask = np.where(y_pred > 0.5, 1, 0)  
+    binary_mask = np.where(y_pred > 0.5, 1, 0).astype(np.uint8)
     binary_mask = np.squeeze(binary_mask)
     
     color_mask = np.zeros((224, 224, 3), dtype=np.uint8)
@@ -122,8 +123,8 @@ def segmentation(path):
     
     overlay = Image.fromarray((overlay * 255).astype(np.uint8))
     
-    binary_array = (y_pred[0] * 255).astype(np.uint8)
-    binary = Image.fromarray(np.squeeze(binary_array, axis=2))
+    binary_array = (binary_mask * 255).astype(np.uint8)
+    binary = Image.fromarray(binary_array)
     
     return overlay, binary
 
@@ -176,3 +177,68 @@ def download_images(image, overlay, binary):
             zipf.write(img, arcname=img_name)
 
     return zip_path
+
+def white_pixels(binary_img):
+    white_pixels = np.where(binary_img == 255)
+    x_coords = white_pixels[1]
+    y_coords = white_pixels[0]
+
+    return x_coords, y_coords
+
+def fit_line(ax, binary_img, color):
+    x_coords, y_coords = white_pixels(binary_img)
+
+    coeffs = np.polyfit(x_coords, y_coords, 1)
+    poly_func = np.poly1d(coeffs)
+    arctan = np.arctan(coeffs[0])
+    degree = np.degrees(arctan)
+
+    x_values = np.linspace(min(x_coords)-10, max(x_coords)+50, len(x_coords))
+
+    ax.scatter(x_coords, y_coords, c='k', marker='o')
+    ax.plot(x_values, poly_func(x_values), c=color, label=f"Angle: {(degree * (- 1)):.2f}")
+
+    ax.legend()
+
+    ax.set_xlim(0, max(x_coords)+50)
+    ax.set_ylim(min(y_coords),max(y_coords)+50)
+    ax.set_xlabel('X')
+    ax.set_ylabel('Y')
+    ax.grid(True)
+
+def count_white_segments(binary_img, filename):
+    contours, _ = cv2.findContours(binary_img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+
+    fig, ax = plt.subplots(figsize=(5,5))
+    color = ['r', 'g', 'c', 'b', 'm', 'y', 'orange', 'brown', 'pink']
+
+    for i, contour in enumerate(contours):
+        blank_image = np.zeros_like(binary_img)
+        segment = cv2.drawContours(blank_image, [contour], -1, (255, 255, 255), thickness=cv2.FILLED)
+        fit_line(ax, segment, color[i % len(color)])
+
+    ax.set_xlim(0, binary_img.shape[1])
+    ax.set_ylim(200, 0)
+    ax.set_xlabel('Pixels')
+    ax.set_ylabel('Pixels')
+
+    plt.savefig(f"app/temp/{filename}", format='png')
+
+def save_interpolation(img_path, filename):
+    image = Image.open(img_path)
+
+    plt.subplot(1, 2, 1)
+    plt.imshow(image, cmap='gray')
+    plt.title('Binary Image')
+
+    count_white_segments(cv2.imread(img_path, cv2.IMREAD_GRAYSCALE), filename=filename)
+
+def save_points(binary_img, filename):
+    x_coords, y_coords = white_pixels(binary_img)
+
+    with open(filename, 'w') as f:
+        f.write('x,y\n')
+        for x, y in zip(x_coords, y_coords):
+            f.write(f'{x},{y}\n')
+
+    print(f"Points saved to {filename}")

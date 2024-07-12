@@ -1,9 +1,8 @@
 import streamlit as st
-import os
 from utils import *
-import numpy as np
-from PIL import Image
 import pandas as pd
+import cv2
+import numpy as np
 
 accuracy = 97
 precision = 98
@@ -40,7 +39,6 @@ with first_col:
     
 
 with second_col:
-    # st.image("app/temp/a_0_10.png", caption="Surface Crack", use_column_width=True)
     st.image("app/images/crack.gif", caption="Surface Crack", use_column_width=True)
     
 left_column, right_column = st.columns(2)
@@ -75,7 +73,8 @@ with left_column:
 
         mask.save(mask_path)
         binary.save(binary_path)
-        
+
+        save_interpolation(binary_path, f"interpolation_{input_directory.name}")
         
         negative_result, positive_result = classification(img_path)
         
@@ -130,12 +129,16 @@ with right_column:
         mask.save(mask_path)
         binary.save(binary_path)
     
-        source = st.radio("Result Image as", ["Overlay", "Binary"], horizontal=True)
+        source = st.radio("Result Image as", ["Overlay", "Binary", "Interpolation"], horizontal=True)
         
         if source == "Overlay":
             st.image(mask_path, caption="Segmented Image", width=400)
-        else:
+        elif source == "Binary":
+            print(binary_path)
             st.image(binary_path, caption="Segmented Image", width=400)
+        else:
+            interpolation_img = f"app/temp/interpolation_{input_directory.name}"
+            st.image(interpolation_img, caption="Interpolation", width=400)
             
         if negative_result > positive_result:
             st.success("The image does not contain a crack.")
