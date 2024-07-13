@@ -29,13 +29,14 @@ model = load_model(
     },
 )
 
-def save_pdf(image, overlay, binary, negative, positive):
+def save_pdf(image, overlay, binary, interpolation, negative, positive):
     """ Saves the input image, overlay image, binary image and the classification probabilities in a PDF file
 
     Args:
         image (Path): input image
         overlay (Path): overlay image of the input image with the segmented crack
         binary (Path): binary image of the segmented crack
+        interpolation (Path): interpolation image of the input image
         negative (float): probability of the image not containing a crack
         positive (float): probability of the image containing a crack
         
@@ -43,46 +44,54 @@ def save_pdf(image, overlay, binary, negative, positive):
         pdf (str): PDF file with the input image, overlay image, binary image and the classification probabilities
     """
     pdf = FPDF()
-    
     pdf.add_page()
-    
+
     pdf.set_title("Surface Crack Detection Report")
     pdf.set_font("Times", size=14)
     pdf.cell(200, 10, txt="Surface Crack Detection Report", ln=True, align="C")
-    
+
     pdf.set_font("Times", size=12)
     pdf.cell(200, 10, txt="1. Result Images", ln=True, align="L")
-    
+
+    # Overlay image (top-left)
     pdf.image(overlay, x=10, y=30, w=90)
-    
-    pdf.set_font("Times", size=10)
-    pdf.ln(90)
-    pdf.cell(100, 10, txt="Overlay Image", ln=False, align="C")
-   
+    pdf.set_y(30 + 90 + 5)  # Positioning below the image
+    pdf.set_x(10)
+    pdf.cell(90, 10, txt="Overlay Image", ln=False, align="C")
+
+    # Binary image (top-right)
     pdf.image(binary, x=110, y=30, w=90)
+    pdf.set_y(30 + 90 + 5)  # Positioning below the image
+    pdf.set_x(110)
     pdf.cell(90, 10, txt="Binary Image", ln=True, align="C")
-    
+
+    pdf.set_y(30 + 90 + 20)  # Adjusting y-position for the next row of images
     pdf.set_font("Times", size=12)
     pdf.cell(200, 10, txt="2. Classification Result", ln=True, align="L")
-    
+
     if positive > negative:
         pdf.set_fill_color(230, 83, 83)
         crack = "Containing Crack."
     else:
         pdf.set_fill_color(83, 230, 83)
         crack = "Not Containing Crack."
-    
 
+    # Interpolation image (bottom-left)
+    pdf.image(interpolation, x=10, y=pdf.get_y() + 5, w=90)
+    pdf.set_y(pdf.get_y() + 90 + 10)  # Positioning below the image
+    pdf.set_x(10)
+    pdf.cell(90, 10, txt="Interpolation Image", ln=False, align="C")
+
+    # Final image (bottom-right)
+    pdf.image(image, x=110, y=pdf.get_y() - 90, w=90)
+    pdf.set_y(pdf.get_y() + 10)
+    pdf.set_x(110)
+    pdf.cell(90, 10, txt="Input Image", ln=True, align="C")
+
+    pdf.set_y(pdf.get_y() + 15)  # Adjusting y-position for the classification results
     pdf.cell(200, 10, txt=f"Probability of Containing Crack: {round(positive, 2)}%", ln=True, align="L", fill=False)
     pdf.cell(200, 10, txt=f"Probability of Not Containing Crack: {round(negative, 2)}%", ln=True, align="L", fill=False)
     pdf.cell(52, 10, txt=f"Result: {crack}", ln=True, align="L", fill=True)
-    pdf.ln(63)
-    
-    pdf.image(image, x=110, y=143, w=90)
-    pdf.set_font("Times", size=10)
-    pdf.cell(100)
-    pdf.cell(90, 10, txt="Input Image", ln=True, align="C")
-
 
     return pdf.output(dest="S").encode("latin-1")
     

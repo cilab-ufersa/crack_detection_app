@@ -73,7 +73,6 @@ with left_column:
         binary.save(binary_path)
 
         save_interpolation(binary_path, f"interpolation_{input_directory.name}")
-        
         negative_result, positive_result = classification(img_path)
         
         st.header("Classification Result")
@@ -88,8 +87,9 @@ with left_column:
         st.write(df.reset_index(drop=True).to_html(index=False), unsafe_allow_html=True)
         
         st.header("Downloads")
-        
-        pdf = save_pdf(image = img_path, overlay = mask_path, binary = binary_path, negative= negative_result, positive=positive_result)
+
+        interpolation_path = f"app/temp/interpolation_{input_directory.name}"
+        pdf = save_pdf(image = img_path, overlay = mask_path, binary = binary_path, interpolation=interpolation_path, negative= negative_result, positive=positive_result)
 
         st.download_button(
             label="Download Result as PDF",
