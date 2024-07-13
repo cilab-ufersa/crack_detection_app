@@ -89,7 +89,7 @@ def save_pdf(image, overlay, binary, negative, positive, user_description, chara
     pdf.cell(200, 10, txt="3. User description", ln=True, align="L")
     pdf.cell(200, 10, txt=f"Description: {user_description}", ln=True, align="L")
     
-    pdf.ln(40)
+    pdf.ln(20)
     
     pdf.image(image, x=110, y=143, w=90)
     pdf.set_font("Times", size=10)
