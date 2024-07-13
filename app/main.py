@@ -1,8 +1,6 @@
 import streamlit as st
 from utils import *
 import pandas as pd
-import cv2
-import numpy as np
 
 accuracy = 97
 precision = 98
@@ -132,14 +130,13 @@ with right_column:
         source = st.radio("Result Image as", ["Overlay", "Binary", "Interpolation"], horizontal=True)
         
         if source == "Overlay":
-            st.image(mask_path, caption="Segmented Image", width=400)
+            show_image_result(mask_path)
         elif source == "Binary":
-            print(binary_path)
-            st.image(binary_path, caption="Segmented Image", width=400)
+            show_image_result(binary_path)
         else:
             interpolation_img = f"app/temp/interpolation_{input_directory.name}"
-            st.image(interpolation_img, caption="Interpolation", width=400)
-            
+            show_image_result(interpolation_img)
+
         if negative_result > positive_result:
             st.success("The image does not contain a crack.")
         else:

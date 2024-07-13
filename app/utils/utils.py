@@ -1,11 +1,12 @@
 import numpy as np
-import pandas as pd
+import base64
 import matplotlib.pyplot as plt
 import cv2
 import os
 from PIL import Image
 from fpdf import FPDF 
 from keras.models import load_model, Model
+import streamlit.components.v1 as components
 from utils.loss_metrics import (
     Weighted_Cross_Entropy,
     Precision_dil,
@@ -242,3 +243,50 @@ def save_points(binary_img, filename):
             f.write(f'{x},{y}\n')
 
     print(f"Points saved to {filename}")
+
+def image_to_base64(image_path):
+    with open(image_path, "rb") as image_file:
+        encoded_string = base64.b64encode(image_file.read()).decode()
+    return encoded_string
+
+def show_image_result(path):
+    image = image_to_base64(path)
+
+    html_string = f"""
+                <style>
+                .container {{
+                  position: relative;
+                  width: 400px;
+                  height: 400px;
+                  overflow: hidden;
+                }}
+
+                .original {{
+                  width: 100%;
+                  height: 100%;
+                  transition: transform 0.2s ease;
+                }}
+
+                .container:hover .original {{
+                  transform: scale(2);  /* Zoom */
+                }}
+                </style>
+                <div class='container'>
+                    <img id='zoom-image' class='original' src="data:image/png;base64,{image}" />
+                </div>
+
+                <script>
+                const container = document.querySelector('.container');
+                const img = document.getElementById('zoom-image');
+
+                container.addEventListener('mousemove', function(e) {{
+                  const rect = container.getBoundingClientRect();
+                  const x = ((e.clientX - rect.left) / rect.width) * 100;
+                  const y = ((e.clientY - rect.top) / rect.height) * 100;
+
+                  img.style.transformOrigin = `${{x}}% ${{y}}%`;
+                }});
+                </script>
+                """
+
+    components.html(html_string, width=400, height=400)
