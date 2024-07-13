@@ -77,7 +77,6 @@ with left_column:
         mask.save(mask_path)
         binary.save(binary_path)
         
-        
         negative_result, positive_result = classification(img_path)
         
         
@@ -99,7 +98,13 @@ with left_column:
         
         st.header("Downloads")
         characterization_class = characterization(binary_path)
-        pdf = save_pdf(image = img_path, overlay = mask_path, binary = binary_path, negative= negative_result, positive=positive_result, user_description=description)
+        pdf = save_pdf(image = img_path, 
+                       overlay = mask_path, 
+                       binary = binary_path, 
+                       negative= negative_result, 
+                       positive=positive_result, 
+                       user_description=description,
+                       characterization_class=characterization_class)
 
         st.download_button(
             label="Download Result as PDF",
