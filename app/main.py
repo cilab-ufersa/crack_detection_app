@@ -98,7 +98,7 @@ with left_column:
             description = "No description provided"
         
         st.header("Downloads")
-        
+        characterization_class = characterization(binary_path)
         pdf = save_pdf(image = img_path, overlay = mask_path, binary = binary_path, negative= negative_result, positive=positive_result, user_description=description)
 
         st.download_button(
@@ -129,14 +129,6 @@ with right_column:
         with open(img_path, "wb") as f:
             f.write(input_directory.getvalue())
 
-        mask, binary = segmentation(img_path)
-        
-        mask_path = os.path.join(temp_dir, f"segmented_mask_{input_directory.name}")
-        binary_path = os.path.join(temp_dir, f"segmented_binary_{input_directory.name}")
-
-        mask.save(mask_path)
-        binary.save(binary_path)
-    
         source = st.radio("Result Image as", ["Overlay", "Binary"], horizontal=True)
         
         if source == "Overlay":
@@ -147,7 +139,6 @@ with right_column:
         if negative_result > positive_result:
             st.success("The image does not contain a crack.")
         else:
-            characterization_class = characterization(binary_path)
             st.warning(f"The image contains a crack and it is classified as: {characterization_class}")   
     else:
         st.info("Please select an image from the left column")
