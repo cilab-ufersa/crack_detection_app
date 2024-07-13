@@ -61,6 +61,7 @@ with left_column:
     
     input_directory = source_img
     
+    
     if source_img is not None:
         img_path = os.path.join(temp_dir, input_directory.name)
 
@@ -79,6 +80,7 @@ with left_column:
         
         negative_result, positive_result = classification(img_path)
         
+        
         st.header("Classification Result")
          
         data = {
@@ -90,9 +92,14 @@ with left_column:
               
         st.write(df.reset_index(drop=True).to_html(index=False), unsafe_allow_html=True)
         
+        description = st.text_input("Description (Optional)", help="Enter a description of the image, this will be included in the report. Press enter to submit.", placeholder="Example: Crack detected near the window")
+        
+        if description == "":
+            description = "No description provided"
+        
         st.header("Downloads")
         
-        pdf = save_pdf(image = img_path, overlay = mask_path, binary = binary_path, negative= negative_result, positive=positive_result)
+        pdf = save_pdf(image = img_path, overlay = mask_path, binary = binary_path, negative= negative_result, positive=positive_result, user_description=description)
 
         st.download_button(
             label="Download Result as PDF",
