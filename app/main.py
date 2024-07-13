@@ -140,8 +140,8 @@ with right_column:
         if negative_result > positive_result:
             st.success("The image does not contain a crack.")
         else:
-            st.warning("The image contains a crack.")
-    
+            characterization_class = characterization(binary_path)
+            st.warning(f"The image contains a crack and it is classified as: {characterization_class}")   
     else:
         st.info("Please select an image from the left column")
 
