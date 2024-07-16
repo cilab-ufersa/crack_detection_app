@@ -4,6 +4,8 @@ import cv2
 import os
 from PIL import Image
 from fpdf import FPDF 
+from keras.preprocessing.image import load_img, img_to_array
+from keras.applications.resnet import preprocess_input
 from keras.models import load_model, Model
 from utils.loss_metrics import (
     Weighted_Cross_Entropy,
@@ -27,7 +29,10 @@ model = load_model(
     },
 )
 
-def save_pdf(image, overlay, binary, negative, positive):
+model_characterization = load_model("models/resnet50_characterization.h5")
+
+
+def save_pdf(image, overlay, binary, negative, positive, user_description, characterization_class):
     """ Saves the input image, overlay image, binary image and the classification probabilities in a PDF file
 
     Args:
@@ -36,6 +41,8 @@ def save_pdf(image, overlay, binary, negative, positive):
         binary (Path): binary image of the segmented crack
         negative (float): probability of the image not containing a crack
         positive (float): probability of the image containing a crack
+        user_description (str): user description of the image
+        characterization_class (str): classification of the crack
         
     Returns:
         pdf (str): PDF file with the input image, overlay image, binary image and the classification probabilities
@@ -74,7 +81,15 @@ def save_pdf(image, overlay, binary, negative, positive):
     pdf.cell(200, 10, txt=f"Probability of Containing Crack: {round(positive, 2)}%", ln=True, align="L", fill=False)
     pdf.cell(200, 10, txt=f"Probability of Not Containing Crack: {round(negative, 2)}%", ln=True, align="L", fill=False)
     pdf.cell(52, 10, txt=f"Result: {crack}", ln=True, align="L", fill=True)
-    pdf.ln(63)
+    if positive > negative:
+        pdf.cell(200, 10, txt=f"Crack Classification: {characterization_class}", ln=True, align="L")
+    pdf.ln(13)
+    
+    pdf.set_font("Times", size=12)
+    pdf.cell(200, 10, txt="3. User description", ln=True, align="L")
+    pdf.cell(200, 10, txt=f"Description: {user_description}", ln=True, align="L")
+    
+    pdf.ln(20)
     
     pdf.image(image, x=110, y=143, w=90)
     pdf.set_font("Times", size=10)
@@ -176,3 +191,21 @@ def download_images(image, overlay, binary):
             zipf.write(img, arcname=img_name)
 
     return zip_path
+
+def characterization(img_path):
+    img = load_img(img_path, target_size=(227, 227))
+    
+    img_array = img_to_array(img)
+    img_batch = np.expand_dims(img_array, axis=0)
+    img_preprocessed = preprocess_input(img_batch)
+    
+    prediction = model_characterization.predict(img_preprocessed)
+    predicted_class = np.argmax(prediction)
+    
+    classes = {0: "Disseminated",
+               1: "Isolated"}
+    
+    prediction_str = classes[predicted_class]
+    
+    return prediction_str
+    
