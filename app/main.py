@@ -1,8 +1,5 @@
 import streamlit as st
-import os
 from utils import *
-import numpy as np
-from PIL import Image
 import pandas as pd
 
 accuracy = 97
@@ -40,7 +37,6 @@ with first_col:
     
 
 with second_col:
-    # st.image("app/temp/a_0_10.png", caption="Surface Crack", use_column_width=True)
     st.image("app/images/crack.gif", caption="Surface Crack", use_column_width=True)
     
 left_column, right_column = st.columns(2)
@@ -76,7 +72,10 @@ with left_column:
 
         mask.save(mask_path)
         binary.save(binary_path)
-        
+
+
+        save_interpolation(binary_path, f"interpolation_{input_directory.name}")
+
         negative_result, positive_result = classification(img_path)
         
         
@@ -91,6 +90,11 @@ with left_column:
               
         st.write(df.reset_index(drop=True).to_html(index=False), unsafe_allow_html=True)
         
+
+       
+
+        interpolation_path = f"app/temp/interpolation_{input_directory.name}"
+
         description = st.text_input("Description (Optional)", help="Enter a description of the image, this will be included in the report. Press enter to submit.", placeholder="Example: Crack detected near the window")
         
         if description == "":
@@ -101,6 +105,7 @@ with left_column:
         pdf = save_pdf(image = img_path, 
                        overlay = mask_path, 
                        binary = binary_path, 
+                       interpolation=interpolation_path,
                        negative= negative_result, 
                        positive=positive_result, 
                        user_description=description,
@@ -134,13 +139,25 @@ with right_column:
         with open(img_path, "wb") as f:
             f.write(input_directory.getvalue())
 
-        source = st.radio("Result Image as", ["Overlay", "Binary"], horizontal=True)
+        mask, binary = segmentation(img_path)
+        
+        mask_path = os.path.join(temp_dir, f"segmented_mask_{input_directory.name}")
+        binary_path = os.path.join(temp_dir, f"segmented_binary_{input_directory.name}")
+
+        mask.save(mask_path)
+        binary.save(binary_path)
+    
+        source = st.radio("Result Image as", ["Overlay", "Binary", "Interpolation"], horizontal=True)
+
         
         if source == "Overlay":
-            st.image(mask_path, caption="Segmented Image", width=400)
+            show_image_result(mask_path)
+        elif source == "Binary":
+            show_image_result(binary_path)
         else:
-            st.image(binary_path, caption="Segmented Image", width=400)
-            
+            interpolation_img = f"app/temp/interpolation_{input_directory.name}"
+            show_image_result(interpolation_img)
+
         if negative_result > positive_result:
             st.success("The image does not contain a crack.")
         else:
