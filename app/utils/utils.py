@@ -73,8 +73,6 @@ def save_pdf(image, overlay, binary, interpolation, negative, positive, user_des
     pdf.cell(90, 10, txt="Binary Image", ln=True, align="C")
 
     pdf.set_y(30 + 90 + 20)  # Adjusting y-position for the next row of images
-    pdf.set_font("Times", size=12)
-    pdf.cell(200, 10, txt="2. Classification Result", ln=True, align="L")
 
     if positive > negative:
         pdf.set_fill_color(230, 83, 83)
@@ -96,6 +94,8 @@ def save_pdf(image, overlay, binary, interpolation, negative, positive, user_des
     pdf.cell(90, 10, txt="Input Image", ln=True, align="C")
 
     pdf.set_y(pdf.get_y() + 15)  # Adjusting y-position for the classification results
+    pdf.set_font("Times", size=12)
+    pdf.cell(200, 10, txt="2. Classification Result", ln=True, align="L")
     pdf.cell(200, 10, txt=f"Probability of Containing Crack: {round(positive, 2)}%", ln=True, align="L", fill=False)
     pdf.cell(200, 10, txt=f"Probability of Not Containing Crack: {round(negative, 2)}%", ln=True, align="L", fill=False)
     pdf.cell(52, 10, txt=f"Result: {crack}", ln=True, align="L", fill=True)
@@ -109,12 +109,6 @@ def save_pdf(image, overlay, binary, interpolation, negative, positive, user_des
     pdf.cell(200, 10, txt=f"Description: {user_description}", ln=True, align="L")
     
     pdf.ln(20)
-    
-    pdf.image(image, x=110, y=143, w=90)
-    pdf.set_font("Times", size=10)
-    pdf.cell(100)
-    pdf.cell(90, 10, txt="Input Image", ln=True, align="C")
-
 
     return pdf.output(dest="S").encode("latin-1")
     
