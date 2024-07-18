@@ -59,7 +59,11 @@ with left_column:
     
     
     if source_img is not None:
-        img_path = os.path.join(temp_dir, input_directory.name)
+        img_path = (os.path.join(temp_dir, input_directory.name)).replace("\\", "/")
+        
+        # assuring the image format is the same as the source image
+        source_img_format = Image.open(input_directory).format
+        img_path = img_path.split(".")[0] + "." + source_img_format.lower()
 
         # saving the input images
         with open(img_path, "wb") as f:
@@ -133,7 +137,6 @@ with right_column:
     st.header("Result Image")
 
     if source_img is not None:
-        img_path = os.path.join(temp_dir, input_directory.name)
 
         # saving the input images
         with open(img_path, "wb") as f:
@@ -141,11 +144,7 @@ with right_column:
 
         mask, binary = segmentation(img_path)
         
-        mask_path = os.path.join(temp_dir, f"segmented_mask_{input_directory.name}")
-        binary_path = os.path.join(temp_dir, f"segmented_binary_{input_directory.name}")
-
-        mask.save(mask_path)
-        binary.save(binary_path)
+      
     
         source = st.radio("Result Image as", ["Overlay", "Binary", "Interpolation"], horizontal=True)
 
