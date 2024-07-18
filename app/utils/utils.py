@@ -333,3 +333,97 @@ def characterization(img_path):
     prediction_str = classes[predicted_class]
     
     return prediction_str
+
+def sliding_windows_folder(folder_path):
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path)
+    else:
+        files = os.listdir(folder_path)
+        for file in files:
+            os.remove(f'{folder_path}/{file}')
+
+def janelamento(img_path):
+    image = Image.open(img_path)
+    image = np.array(image)
+
+    height, width, _ = image.shape
+    window_size = (224, 224)
+    
+    num_rows = height // window_size[0]
+    num_cols = width // window_size[1]
+    
+    
+    original_path = 'app/temp/windows/original/'
+    segmented_mask_path = 'app/temp/windows/segmented_mask/'
+    segmented_binary_path = 'app/temp/windows/segmented_binary/'
+    
+    sliding_windows_folder(original_path)
+    sliding_windows_folder(segmented_mask_path)
+    sliding_windows_folder(segmented_binary_path)
+    
+    for contador in range(height // window_size[0]):
+        for contador2 in range(width // window_size[1]):
+            x = contador * window_size[0]
+            y = contador2 * window_size[1]
+            window = image[x:x + window_size[0], y:y + window_size[1]]
+            
+            window = cv2.cvtColor(window, cv2.COLOR_RGB2BGR)
+            
+            label = f"window_{contador2}_{contador}.jpg"
+            window_path = f"{original_path}{label}"
+            cv2.imwrite(window_path, window)
+            mask, binary = segmentation(window_path)
+        
+            mask_path = os.path.join(segmented_mask_path, f"{label}")
+            binary_path = os.path.join(segmented_binary_path, f"{label}")
+
+            mask.save(mask_path)
+            binary.save(binary_path)
+                
+
+    print("Janelamento concluído com sucesso!")
+
+    
+def concatenacao(img_path, mask = None, binary = None):
+    
+    image = Image.open(img_path)
+    image = np.array(image)
+
+    height, width, _ = image.shape
+    window_size = (224, 224)
+    
+    num_rows = height // window_size[0]
+    num_cols = width // window_size[1]
+    
+    
+    if mask == True:
+        final_image = np.zeros((num_rows * window_size[0], num_cols * window_size[1], 3), dtype=np.uint8)
+    elif binary == True:
+        final_image = np.zeros((num_rows * window_size[0], num_cols * window_size[1], 3), dtype=np.uint8)
+ 
+    for row in range(num_rows):
+        for col in range(num_cols):
+            x = row * window_size[0]
+            y = col * window_size[1]
+            if mask == True:
+                folder = "segmented_mask"
+            elif binary == True:
+                folder = "segmented_binary"
+            
+            image = Image.open(f'app/temp/windows/{folder}/window_{col}_{row}.jpg')
+            window = np.array(image)
+            window = cv2.cvtColor(window, cv2.COLOR_RGB2BGR)
+            
+            final_image[x:x + window_size[0], y:y + window_size[1]] = window
+   
+    if mask == True:
+        final_image_name = "concatenated_mask_image.jpg"
+    elif binary == True:
+        final_image_name = "concatenated_binary_image.jpg"
+    
+    path = f'app/temp/windows/{final_image_name}'
+        
+    cv2.imwrite(path, final_image)
+    
+    return path
+        

@@ -69,18 +69,15 @@ with left_column:
         with open(img_path, "wb") as f:
             f.write(input_directory.getvalue())
 
-        mask, binary = segmentation(img_path)
+        janelamento = janelamento(img_path)
         
-        mask_path = os.path.join(temp_dir, f"segmented_mask_{input_directory.name}")
-        binary_path = os.path.join(temp_dir, f"segmented_binary_{input_directory.name}")
-
-        mask.save(mask_path)
-        binary.save(binary_path)
-
+        mask_path = concatenacao(img_path, mask=True)
+        binary_path = concatenacao(img_path, binary=True)
+        
 
         save_interpolation(binary_path, f"interpolation_{input_directory.name}")
 
-        negative_result, positive_result = classification(img_path)
+        negative_result, positive_result = classification(binary_path)
         
         
         st.header("Classification Result")
@@ -94,8 +91,6 @@ with left_column:
               
         st.write(df.reset_index(drop=True).to_html(index=False), unsafe_allow_html=True)
         
-
-       
 
         interpolation_path = f"app/temp/interpolation_{input_directory.name}"
 
@@ -141,11 +136,7 @@ with right_column:
         # saving the input images
         with open(img_path, "wb") as f:
             f.write(input_directory.getvalue())
-
-        mask, binary = segmentation(img_path)
         
-      
-    
         source = st.radio("Result Image as", ["Overlay", "Binary", "Interpolation"], horizontal=True)
 
         
