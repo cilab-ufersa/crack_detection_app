@@ -61,6 +61,8 @@ with left_column:
     if source_img is not None:
         img_path = (os.path.join(temp_dir, input_directory.name)).replace("\\", "/")
         
+        filename = (input_directory.name).split(".")[0]
+        
         # assuring the image format is the same as the source image
         source_img_format = Image.open(input_directory).format
         img_path = img_path.split(".")[0] + "." + source_img_format.lower()
@@ -71,14 +73,14 @@ with left_column:
 
         mask, binary = segmentation(img_path)
         
-        mask_path = os.path.join(temp_dir, f"segmented_mask_{input_directory.name}")
-        binary_path = os.path.join(temp_dir, f"segmented_binary_{input_directory.name}")
+        mask_path = os.path.join(temp_dir, f"segmented_mask_{filename}.jpeg")
+        binary_path = os.path.join(temp_dir, f"segmented_binary_{filename}.jpeg")
 
         mask.save(mask_path)
         binary.save(binary_path)
 
 
-        save_interpolation(binary_path, f"interpolation_{input_directory.name}")
+        save_interpolation(binary_path, f"interpolation_{filename}.png")
 
         negative_result, positive_result = classification(img_path)
         
@@ -97,7 +99,7 @@ with left_column:
 
        
 
-        interpolation_path = f"app/temp/interpolation_{input_directory.name}"
+        interpolation_path = f"app/temp/interpolation_{filename}.png"
 
         description = st.text_input("Description (Optional)", help="Enter a description of the image, this will be included in the report. Press enter to submit.", placeholder="Example: Crack detected near the window")
         
