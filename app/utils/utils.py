@@ -248,7 +248,7 @@ def count_white_segments(binary_img, filename):
     ax.set_ylim(200, 0)
     ax.set_xlabel('Pixels')
     ax.set_ylabel('Pixels')
-
+    filename = filename.split('.')[0] + '.png'
     plt.savefig(f"app/temp/{filename}", format='png')
 
 def save_interpolation(img_path, filename):
