@@ -80,8 +80,6 @@ with left_column:
         binary.save(binary_path)
 
 
-        save_interpolation(binary_path, f"interpolation_{filename}.png")
-
         negative_result, positive_result = classification(img_path)
         
         
@@ -97,10 +95,6 @@ with left_column:
         st.write(df.reset_index(drop=True).to_html(index=False), unsafe_allow_html=True)
         
 
-       
-
-        interpolation_path = f"app/temp/interpolation_{filename}.png"
-
         description = st.text_input("Description (Optional)", help="Enter a description of the image, this will be included in the report. Press enter to submit.", placeholder="Example: Crack detected near the window")
         
         if description == "":
@@ -111,7 +105,6 @@ with left_column:
         pdf = save_pdf(image = img_path, 
                        overlay = mask_path, 
                        binary = binary_path, 
-                       interpolation=interpolation_path,
                        negative= negative_result, 
                        positive=positive_result, 
                        user_description=description,
@@ -148,16 +141,13 @@ with right_column:
         
       
     
-        source = st.radio("Result Image as", ["Overlay", "Binary", "Interpolation"], horizontal=True)
+        source = st.radio("Result Image as", ["Overlay", "Binary"], horizontal=True)
 
         
         if source == "Overlay":
             show_image_result(mask_path)
         elif source == "Binary":
             show_image_result(binary_path)
-        else:
-            interpolation_img = f"app/temp/interpolation_{input_directory.name}"
-            show_image_result(interpolation_img)
 
         if negative_result > positive_result:
             st.success("The image does not contain a crack.")
