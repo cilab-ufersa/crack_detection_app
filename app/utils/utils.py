@@ -199,13 +199,6 @@ def white_pixels(binary_img):
 
     return x_coords, y_coords
 
-
-
-
-
-
-
-
 def image_to_base64(image_path):
     with open(image_path, "rb") as image_file:
         encoded_string = base64.b64encode(image_file.read()).decode()
@@ -269,3 +262,12 @@ def characterization(img_path):
     prediction_str = classes[predicted_class]
     
     return prediction_str
+
+def calculate_line_equation(point1, point2):
+    x1, y1 = point1
+    x2, y2 = point2
+
+    m = (y2 - y1) / (x2 - x1)
+    b = y1 - m * x1
+
+    return m, b
