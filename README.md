@@ -14,6 +14,10 @@ The app will calculate the line equation that passes through the points and
 the angle of the line with the x-axis. This can be useful to determine the 
 orientation of the crack.
 
+## App preview
+
+https://github.com/user-attachments/assets/4520cde5-f5dc-42ea-9b00-a568d74ed57a
+
 ## Prerequisites
 
 What things you need to have to be able to run:
