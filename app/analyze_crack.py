@@ -37,19 +37,16 @@ def show():
     if 'submit' not in st.session_state:
         st.session_state['submit'] = False
 
-    vetor = st.session_state['clicked_points']
-    tamanho = len(vetor)
+    sessions = st.session_state['clicked_points']
+    size = len(sessions)
 
-    ultimo = []
-    penultimo = []
+    last = []
+    penultimate = []
     st.session_state['submit'] = False
-    if tamanho % 2 == 0 and tamanho != 0:
-    
-        print(vetor)
-        print(f"Último ponto: {vetor[-1]}\n Penúltimo ponto {vetor[-2]}")
+    if size % 2 == 0 and size != 0:
         
-        ultimo = vetor[-1]
-        penultimo = vetor [-2]
+        last = sessions[-1]
+        penultimate = sessions[-2]
         
         st.session_state['clicked_points'] = []
         st.session_state['submit'] = True
@@ -68,8 +65,8 @@ def show():
                 """)
         if st.session_state['submit'] == True:
         
-            point1 = vetor[0]
-            point2 = vetor[1]
+            point1 = sessions[0]
+            point2 = sessions[1]
             m, b = calculate_line_equation(point1, point2)
             st.info(f"The line equation that passes through the points is $y = {-m:.2f}x {'+' if b > 0 else ''} {b:.2f}$ and your angle with the x-axis is ${np.degrees(np.arctan(-m)):.2f}°$")
             
@@ -100,8 +97,8 @@ def show():
             {
                 "symbolSize": 20,
                 "data": [
-                    ultimo,
-                    penultimo
+                    last,
+                    penultimate
                     ],
                 "type": "line",
                 "itemStyle": {
@@ -110,9 +107,6 @@ def show():
             },
         ],
     }
-    
-    print("Os dados foram atualizados")
-    print(f"Dados dos pontos da imagem: {len(options['series'][0]['data'])}")
     
     events = {
         "click": "function(params) { console.log(params.name); return params.value }",

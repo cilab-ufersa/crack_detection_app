@@ -57,9 +57,7 @@ def show():
             source_img = st.file_uploader("Upload an image here")
         
         input_directory = source_img
-        print(f"Input Directory: {input_directory}")
-        print(f"Input Directory Type: {type(input_directory)}")
-        
+
         if source_img is not None:
             img_path = (os.path.join(temp_dir, input_directory.name)).replace("\\", "/")
             
