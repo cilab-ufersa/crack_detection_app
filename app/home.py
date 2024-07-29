@@ -16,6 +16,7 @@ def show():
 
     st.header("Surface Crack Detection AI App 🧱")
     first_col, second_col = st.columns([3, 1])
+    st.query_params.update({"page": "home"})
     
     with first_col:
         st.write(
