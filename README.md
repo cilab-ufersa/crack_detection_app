@@ -48,21 +48,15 @@ The software also distinguishes between isolated cracks and map cracks, which ca
 
 The angle is calculated based on the line equation that passes through two points selected by the user. The equation is given by:
 
-$
-y = m*x + b
-$
+$$y = m*x + b$$
 
 where `m` is the slope of the line and `b` is the y-intercept. The slope is calculated by:
 
-$
-m = \frac{(y2 - y1)}{(x2 - x1)}
-$
+$$m = \frac{(y2 - y1)}{(x2 - x1)}$$
 
 The angle of the line with the x-axis is given by:
 
-$
-angle = arctan(m)
-$
+$$ angle = arctan(m)$$
 
 The angle is used to determine the orientation of the crack. 
 
