@@ -1,4 +1,4 @@
-# Surface Crack Detection Application
+# Crackit: Crack analysis and diagnosis on buildings elements
 
 Crack detection is an important task in the field of civil engineering. 
 Surface cracks can be a sign of structural damage and can lead to 

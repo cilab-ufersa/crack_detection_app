@@ -8,7 +8,7 @@ import cv2
 
 def show():
     st.set_page_config(
-    page_title="Surface Crack Detection",
+    page_title="Crackit",
     page_icon="🧱",
     layout="wide"
     )
@@ -52,7 +52,7 @@ def show():
         st.session_state['submit'] = True
         
     with first_col:
-        st.header("Surface Crack Analysis 📉")
+        st.header("Crackit: Surface Crack Analysis 📉")
         
         st.write("""
                 In this section, you can analyze the crack by selecting two points on the image. The app will calculate the line equation that passes through the points and the angle of the line with the x-axis. This can be useful to determine the orientation of the crack.

@@ -9,12 +9,12 @@ recall = 98
 def show():
     
     st.set_page_config(
-    page_title="Surface Crack Detection",
+    page_title="Crackit",
     page_icon="🧱",
     layout="wide"
     )
 
-    st.header("Surface Crack Detection AI App 🧱")
+    st.header("Crackit: Crack analysis and diagnosis on buildings elements🧱")
     first_col, second_col = st.columns([3, 1])
     st.query_params.update({"page": "home"})
     
