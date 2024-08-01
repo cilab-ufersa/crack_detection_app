@@ -38,3 +38,38 @@ What things you need to have to be able to run:
 ```bash
     $ streamlit run app/main.py
 ```
+
+
+## About the model 
+
+We used a pre-trained model called U-Net to segment the cracks in the images, and MobileNet to classify the images.
+Moreover, we used a custom algorithm to calculate the angle of the crack, which is based on the line equation that passes through two points selected by the user.
+The software also distinguishes between isolated cracks and map cracks, which can be useful for further analysis. For the distinction, we used ResNet50 model. 
+
+The angle is calculated based on the line equation that passes through two points selected by the user. The equation is given by:
+
+$$y = m*x + b$$
+
+where `m` is the slope of the line and `b` is the y-intercept. The slope is calculated by:
+
+$$m = \frac{(y2 - y1)}{(x2 - x1)}$$
+
+The angle of the line with the x-axis is given by:
+
+$$ angle = arctan(m)$$
+
+The angle is used to determine the orientation of the crack. 
+
+
+
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details. 
+
+## Acknowledgments
+
+* This project was developed as part of the project "Crack Detection and Characterization on Building Elements" at the Federal University of Semi-Árido, Brazil.
+
+* The dataset used to train the models was provided by the University of Stuttgart, Germany. The dataset is available at: [Link](https://data.mendeley.com/datasets/5y9wdsg2zt/1)
+
