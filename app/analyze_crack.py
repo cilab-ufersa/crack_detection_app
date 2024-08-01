@@ -13,23 +13,20 @@ def show():
     layout="wide"
     )
     first_col, second_col = st.columns([1, 1])
-    
-    
-    
-    if 'image' not in st.session_state:
-        image = cv2.imread(st.query_params.get('image'))
 
-        x_values, y_values = white_pixels(image)
+    image = cv2.imread(st.query_params.get('image'))
 
-        points = []	
+    x_values, y_values = white_pixels(image)
 
-        for i in range(len(x_values)):
-            points.append([x_values[i], y_values[i]])
-        
-        st.session_state['image'] = points
-   
-        st.session_state['image'] = [[int(x), int(y)] for x, y in st.session_state['image']]
+    points = []	
+
+    for i in range(len(x_values)):
+        points.append([x_values[i], y_values[i]])
     
+    st.session_state['image'] = points
+
+    st.session_state['image'] = [[int(x), int(y)] for x, y in st.session_state['image']]
+
 
     if 'clicked_points' not in st.session_state:
         st.session_state['clicked_points'] = []

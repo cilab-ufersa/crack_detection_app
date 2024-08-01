@@ -76,6 +76,8 @@ def show():
             
             mask_path = os.path.join(temp_dir, f"segmented_mask_{filename}.jpeg")
             binary_path = os.path.join(temp_dir, f"segmented_binary_{filename}.jpeg")
+            
+            st.query_params.update({"image": binary_path})
 
             mask.save(mask_path)
             binary.save(binary_path)
