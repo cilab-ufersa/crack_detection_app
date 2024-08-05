@@ -346,8 +346,17 @@ def janelamento(img_path):
     image = Image.open(img_path)
     image = np.array(image)
 
-    height, width, _ = image.shape
+    original_height, original_width, _ = image.shape
     window_size = (224, 224)
+    
+    pad_height = window_size[0] - (original_height % window_size[0])
+    pad_width = window_size[1] - (original_width % window_size[1])
+
+    # Add padding to the image
+    image = np.pad(image, ((0, pad_height), (0, pad_width), (0, 0)), mode='constant')
+
+    # Update height and width
+    height, width, _ = image.shape
     
     num_rows = height // window_size[0]
     num_cols = width // window_size[1]
@@ -389,8 +398,15 @@ def concatenacao(img_path, mask = None, binary = None):
     image = Image.open(img_path)
     image = np.array(image)
 
-    height, width, _ = image.shape
+    original_height, original_width, _ = image.shape
     window_size = (224, 224)
+    
+    pad_height = window_size[0] - (original_height % window_size[0])
+    pad_width = window_size[1] - (original_width % window_size[1])
+
+    image = np.pad(image, ((0, pad_height), (0, pad_width), (0, 0)), mode='constant')
+
+    height, width, _ = image.shape
     
     num_rows = height // window_size[0]
     num_cols = width // window_size[1]
@@ -422,6 +438,9 @@ def concatenacao(img_path, mask = None, binary = None):
         final_image_name = "concatenated_binary_image.jpg"
     
     path = f'app/temp/windows/{final_image_name}'
+
+    # Remove padding
+    final_image = final_image[:original_height, :original_width]
         
     cv2.imwrite(path, final_image)
     
