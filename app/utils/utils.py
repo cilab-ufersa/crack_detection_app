@@ -34,14 +34,13 @@ model = load_model(
 
 model_characterization = load_model("models/resnet50_characterization.h5")
 
-def save_pdf(image, overlay, binary, interpolation, negative, positive, user_description, characterization_class):
+def save_pdf(image, overlay, binary, negative, positive, user_description, characterization_class):
     """ Saves the input image, overlay image, binary image and the classification probabilities in a PDF file
 
     Args:
         image (Path): input image
         overlay (Path): overlay image of the input image with the segmented crack
         binary (Path): binary image of the segmented crack
-        interpolation (Path): interpolation image of the input image
         negative (float): probability of the image not containing a crack
         positive (float): probability of the image containing a crack
         user_description (str): user description of the image
@@ -51,55 +50,38 @@ def save_pdf(image, overlay, binary, interpolation, negative, positive, user_des
         pdf (str): PDF file with the input image, overlay image, binary image and the classification probabilities
     """
     pdf = FPDF()
+    
     pdf.add_page()
-
+    
     pdf.set_title("Surface Crack Detection Report")
     pdf.set_font("Times", size=14)
     pdf.cell(200, 10, txt="Surface Crack Detection Report", ln=True, align="C")
-
+    
     pdf.set_font("Times", size=12)
     pdf.cell(200, 10, txt="1. Result Images", ln=True, align="L")
-
-    # Overlay image (top-left)
+    
     pdf.image(overlay, x=10, y=30, w=90)
-    pdf.set_y(30 + 90 + 5)  # Positioning below the image
-    pdf.set_x(10)
-    pdf.cell(90, 10, txt="Overlay Image", ln=False, align="C")
-
-    # Binary image (top-right)
+    
+    pdf.set_font("Times", size=10)
+    pdf.ln(90)
+    pdf.cell(100, 10, txt="Overlay Image", ln=False, align="C")
+   
     pdf.image(binary, x=110, y=30, w=90)
-    pdf.set_y(30 + 90 + 5)  # Positioning below the image
-    pdf.set_x(110)
     pdf.cell(90, 10, txt="Binary Image", ln=True, align="C")
-
-    pdf.set_y(30 + 90 + 20)  # Adjusting y-position for the next row of images
-
+    
+    pdf.set_font("Times", size=12)
+    pdf.cell(200, 10, txt="2. Classification Result", ln=True, align="L")
+    
     if positive > negative:
         pdf.set_fill_color(230, 83, 83)
         crack = "Containing Crack."
     else:
         pdf.set_fill_color(83, 230, 83)
         crack = "Not Containing Crack."
-
-    # Interpolation image (bottom-left)
-    pdf.image(interpolation, x=10, y=pdf.get_y() + 5, w=90)
-    pdf.set_y(pdf.get_y() + 90 + 10)  # Positioning below the image
-    pdf.set_x(10)
-    pdf.cell(90, 10, txt="Interpolation Image", ln=False, align="C")
-
-    # Final image (bottom-right)
-    pdf.image(image, x=110, y=pdf.get_y() - 90, w=90)
-    pdf.set_y(pdf.get_y() + 10)
-    pdf.set_x(110)
-    pdf.cell(90, 10, txt="Input Image", ln=True, align="C")
-
-    pdf.set_y(pdf.get_y() + 15)  # Adjusting y-position for the classification results
-    pdf.set_font("Times", size=12)
-    pdf.cell(200, 10, txt="2. Classification Result", ln=True, align="L")
+    
     pdf.cell(200, 10, txt=f"Probability of Containing Crack: {round(positive, 2)}%", ln=True, align="L", fill=False)
     pdf.cell(200, 10, txt=f"Probability of Not Containing Crack: {round(negative, 2)}%", ln=True, align="L", fill=False)
     pdf.cell(52, 10, txt=f"Result: {crack}", ln=True, align="L", fill=True)
-
     if positive > negative:
         pdf.cell(200, 10, txt=f"Crack Classification: {characterization_class}", ln=True, align="L")
     pdf.ln(13)
@@ -107,9 +89,14 @@ def save_pdf(image, overlay, binary, interpolation, negative, positive, user_des
     pdf.set_font("Times", size=12)
     pdf.cell(200, 10, txt="3. User description", ln=True, align="L")
     pdf.cell(200, 10, txt=f"Description: {user_description}", ln=True, align="L")
-    
+
     pdf.ln(20)
 
+    pdf.image(image, x=110, y=143, w=90, h=90)
+    pdf.set_font("Times", size=10)
+    
+    pdf.cell(100)
+    pdf.cell(90, 10, txt="Input Image", ln=True, align="C")
     return pdf.output(dest="S").encode("latin-1")
     
     
@@ -211,64 +198,6 @@ def white_pixels(binary_img):
     y_coords = white_pixels[0]
 
     return x_coords, y_coords
-
-def fit_line(ax, binary_img, color):
-    x_coords, y_coords = white_pixels(binary_img)
-
-    coeffs = np.polyfit(x_coords, y_coords, 1)
-    poly_func = np.poly1d(coeffs)
-    arctan = np.arctan(coeffs[0])
-    degree = np.degrees(arctan)
-
-    x_values = np.linspace(min(x_coords)-10, max(x_coords)+50, len(x_coords))
-
-    ax.scatter(x_coords, y_coords, c='k', marker='o')
-    ax.plot(x_values, poly_func(x_values), c=color, label=f"Angle: {(degree * (- 1)):.2f}")
-
-    ax.legend()
-
-    ax.set_xlim(0, max(x_coords)+50)
-    ax.set_ylim(min(y_coords),max(y_coords)+50)
-    ax.set_xlabel('X')
-    ax.set_ylabel('Y')
-    ax.grid(True)
-
-def count_white_segments(binary_img, filename):
-    contours, _ = cv2.findContours(binary_img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-
-    fig, ax = plt.subplots(figsize=(5,5))
-    color = ['r', 'g', 'c', 'b', 'm', 'y', 'orange', 'brown', 'pink']
-
-    for i, contour in enumerate(contours):
-        blank_image = np.zeros_like(binary_img)
-        segment = cv2.drawContours(blank_image, [contour], -1, (255, 255, 255), thickness=cv2.FILLED)
-        fit_line(ax, segment, color[i % len(color)])
-
-    ax.set_xlim(0, binary_img.shape[1])
-    ax.set_ylim(200, 0)
-    ax.set_xlabel('Pixels')
-    ax.set_ylabel('Pixels')
-
-    plt.savefig(f"app/temp/{filename}", format='png')
-
-def save_interpolation(img_path, filename):
-    image = Image.open(img_path)
-
-    plt.subplot(1, 2, 1)
-    plt.imshow(image, cmap='gray')
-    plt.title('Binary Image')
-
-    count_white_segments(cv2.imread(img_path, cv2.IMREAD_GRAYSCALE), filename=filename)
-
-def save_points(binary_img, filename):
-    x_coords, y_coords = white_pixels(binary_img)
-
-    with open(filename, 'w') as f:
-        f.write('x,y\n')
-        for x, y in zip(x_coords, y_coords):
-            f.write(f'{x},{y}\n')
-
-    print(f"Points saved to {filename}")
 
 def image_to_base64(image_path):
     with open(image_path, "rb") as image_file:
@@ -446,3 +375,125 @@ def concatenacao(img_path, mask = None, binary = None):
     
     return path
         
+
+def sliding_windows_folder(folder_path):
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path)
+    else:
+        files = os.listdir(folder_path)
+        for file in files:
+            os.remove(f'{folder_path}/{file}')
+
+def janelamento(img_path):
+    image = Image.open(img_path)
+    image = np.array(image)
+
+    original_height, original_width, _ = image.shape
+    window_size = (224, 224)
+    
+    pad_height = window_size[0] - (original_height % window_size[0])
+    pad_width = window_size[1] - (original_width % window_size[1])
+
+    # Add padding to the image
+    image = np.pad(image, ((0, pad_height), (0, pad_width), (0, 0)), mode='constant')
+
+    # Update height and width
+    height, width, _ = image.shape
+    
+    num_rows = height // window_size[0]
+    num_cols = width // window_size[1]
+    
+    
+    original_path = 'app/temp/windows/original/'
+    segmented_mask_path = 'app/temp/windows/segmented_mask/'
+    segmented_binary_path = 'app/temp/windows/segmented_binary/'
+    
+    sliding_windows_folder(original_path)
+    sliding_windows_folder(segmented_mask_path)
+    sliding_windows_folder(segmented_binary_path)
+    
+    for contador in range(height // window_size[0]):
+        for contador2 in range(width // window_size[1]):
+            x = contador * window_size[0]
+            y = contador2 * window_size[1]
+            window = image[x:x + window_size[0], y:y + window_size[1]]
+            
+            window = cv2.cvtColor(window, cv2.COLOR_RGB2BGR)
+            
+            label = f"window_{contador2}_{contador}.jpg"
+            window_path = f"{original_path}{label}"
+            cv2.imwrite(window_path, window)
+            mask, binary = segmentation(window_path)
+        
+            mask_path = os.path.join(segmented_mask_path, f"{label}")
+            binary_path = os.path.join(segmented_binary_path, f"{label}")
+
+            mask.save(mask_path)
+            binary.save(binary_path)
+                
+
+    print("Janelamento concluído com sucesso!")
+
+    
+def concatenacao(img_path, mask = None, binary = None):
+    
+    image = Image.open(img_path)
+    image = np.array(image)
+
+    original_height, original_width, _ = image.shape
+    window_size = (224, 224)
+    
+    pad_height = window_size[0] - (original_height % window_size[0])
+    pad_width = window_size[1] - (original_width % window_size[1])
+
+    image = np.pad(image, ((0, pad_height), (0, pad_width), (0, 0)), mode='constant')
+
+    height, width, _ = image.shape
+    
+    num_rows = height // window_size[0]
+    num_cols = width // window_size[1]
+    
+    
+    if mask == True:
+        final_image = np.zeros((num_rows * window_size[0], num_cols * window_size[1], 3), dtype=np.uint8)
+    elif binary == True:
+        final_image = np.zeros((num_rows * window_size[0], num_cols * window_size[1], 3), dtype=np.uint8)
+ 
+    for row in range(num_rows):
+        for col in range(num_cols):
+            x = row * window_size[0]
+            y = col * window_size[1]
+            if mask == True:
+                folder = "segmented_mask"
+            elif binary == True:
+                folder = "segmented_binary"
+            
+            image = Image.open(f'app/temp/windows/{folder}/window_{col}_{row}.jpg')
+            window = np.array(image)
+            window = cv2.cvtColor(window, cv2.COLOR_RGB2BGR)
+            
+            final_image[x:x + window_size[0], y:y + window_size[1]] = window
+   
+    if mask == True:
+        final_image_name = "concatenated_mask_image.jpg"
+    elif binary == True:
+        final_image_name = "concatenated_binary_image.jpg"
+    
+    path = f'app/temp/windows/{final_image_name}'
+
+    # Remove padding
+    final_image = final_image[:original_height, :original_width]
+        
+    cv2.imwrite(path, final_image)
+    
+    return path
+        
+
+def calculate_line_equation(point1, point2):
+    x1, y1 = point1
+    x2, y2 = point2
+
+    m = (y2 - y1) / (x2 - x1)
+    b = y1 - m * x1
+
+    return m, b

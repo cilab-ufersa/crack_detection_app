@@ -1,4 +1,4 @@
-﻿absl-py==2.1.0
+absl-py==2.1.0
 altair==5.2.0
 astunparse==1.6.3
 attrs==23.2.0
@@ -32,7 +32,6 @@ mdurl==0.1.2
 ml-dtypes==0.2.0
 numpy==1.26.4
 oauthlib==3.2.2
-opencv-python==4.9.0.80
 opt-einsum==3.3.0
 packaging==23.2
 pandas==2.2.1
@@ -42,6 +41,7 @@ pyarrow==15.0.0
 pyasn1==0.5.1
 pyasn1-modules==0.3.0
 pydeck==0.8.1b0
+pyecharts==2.0.6
 Pygments==2.17.2
 python-dateutil==2.9.0.post0
 pytz==2024.1
@@ -54,6 +54,7 @@ rsa==4.9
 six==1.16.0
 smmap==5.0.1
 streamlit==1.31.1
+streamlit-echarts==0.4.0
 tenacity==8.2.3
 tensorboard==2.15.2
 tensorboard-data-server==0.7.2
