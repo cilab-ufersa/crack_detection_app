@@ -13,10 +13,18 @@ def show():
     layout="wide"
     )
     first_col, second_col = st.columns([1, 1])
-
+   
     image = cv2.imread(st.query_params.get('image'))
+    
+    # image size
+    print("y axis", image.shape[0])
+    print("x axis", image.shape[1])
+    
+    # resizing without distortion based on the width and height
+    image = cv2.resize(image, (image.shape[1]//2, image.shape[0]//2))
 
     x_values, y_values = white_pixels(image)
+    
 
     points = []	
 
@@ -78,11 +86,11 @@ def show():
     options = {
         "xAxis": {
                 "min":0,
-                "max": 224
+                "max": image.shape[1],
             },
         "yAxis": {
                 "min":0,
-                "max": 224,
+                "max": image.shape[0],
                 "inverse": True
             },
         "series": [

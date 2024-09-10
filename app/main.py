@@ -1,4 +1,3 @@
-# main.py
 import streamlit as st
 import home
 import analyze_crack as other

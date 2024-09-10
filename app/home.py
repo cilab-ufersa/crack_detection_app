@@ -72,16 +72,13 @@ def show():
             with open(img_path, "wb") as f:
                 f.write(input_directory.getvalue())
 
-            mask, binary = segmentation(img_path)
             
-            mask_path = os.path.join(temp_dir, f"segmented_mask_{filename}.jpeg")
-            binary_path = os.path.join(temp_dir, f"segmented_binary_{filename}.jpeg")
+            janelamento(img_path)
+        
+            mask_path = concatenacao(img_path, mask=True)
+            binary_path = concatenacao(img_path, binary=True)
             
             st.query_params.update({"image": binary_path})
-
-            mask.save(mask_path)
-            binary.save(binary_path)
-
 
             negative_result, positive_result = classification(img_path)
             
